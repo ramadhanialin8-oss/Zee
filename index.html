@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Digital Letter</title>
+  <style>
+    :root {
+      --maroon: #7a1f3d;
+      --maroon-dark: #5c1430;
+      --sky-blue: #8fd3ff;
+      --soft-pink: #f8b7cc;
+      --text: #3c2430;
+      --shadow: 0 18px 45px rgba(122, 31, 61, 0.18);
+      --radius: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Georgia", "Times New Roman", serif;
+      background:
+        radial-gradient(circle at top left, rgba(143, 211, 255, 0.45), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(248, 183, 204, 0.5), transparent 32%),
+        linear-gradient(135deg, #fff6fa 0%, #e9f7ff 52%, #fff0f5 100%);
+      color: var(--text);
+      overflow: hidden;
+      position: relative;
+      padding: 20px;
+    }
+
+    .bg-blur {
+      position: absolute;
+      border-radius: 999px;
+      filter: blur(16px);
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    .blur-1 {
+      width: 220px;
+      height: 220px;
+      background: rgba(143, 211, 255, 0.5);
+      top: 8%;
+      left: 8%;
+    }
+
+    .blur-2 {
+      width: 240px;
+      height: 240px;
+      background: rgba(248, 183, 204, 0.38);
+      right: 8%;
+      bottom: 10%;
+    }
+
+    .wrap {
+      width: min(88vw, 620px);
+      position: relative;
+      z-index: 2;
+    }
+
+    .envelope {
+      position: relative;
+      background: linear-gradient(145deg, #fff7fb, #ffe4ef);
+      border: 2px solid rgba(122, 31, 61, 0.1);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: visible;
+      transition: transform 0.35s ease;
+      cursor: pointer;
+    }
+
+    .envelope:hover {
+      transform: translateY(-2px);
+    }
+
+    .flap {
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 112px;
+      background: linear-gradient(135deg, var(--maroon), #9d3f60);
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+      transform-origin: top;
+      transition: transform 0.9s ease;
+      z-index: 4;
+      border-top-left-radius: var(--radius);
+      border-top-right-radius: var(--radius);
+    }
+
+    .seal {
+      position: absolute;
+      top: 66px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      border: 5px solid rgba(255,255,255,0.8);
+      background: radial-gradient(circle at 30% 30%, #ffd6e5, var(--soft-pink));
+      box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+      display: grid;
+      place-items: center;
+      z-index: 5;
+      color: var(--maroon-dark);
+      font-size: 1.35rem;
+      cursor: pointer;
+      transition: transform 0.3s ease, opacity 0.45s ease;
+      user-select: none;
+    }
+
+    .seal:hover {
+      transform: translateX(-50%) scale(1.04);
+    }
+
+    .letter {
+      position: relative;
+      margin: 88px 16px 16px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.97), rgba(255,248,251,0.99));
+      border-radius: 20px;
+      padding: 24px 20px;
+      box-shadow: inset 0 0 0 1px rgba(122, 31, 61, 0.08);
+      transform: translateY(36px);
+      opacity: 0;
+      transition: transform 0.9s ease, opacity 0.9s ease;
+      max-height: 58vh;
+      overflow: auto;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(122, 31, 61, 0.35) transparent;
+    }
+
+    .letter::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .letter::-webkit-scrollbar-thumb {
+      background: rgba(122, 31, 61, 0.35);
+      border-radius: 999px;
+    }
+
+    .heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid rgba(122, 31, 61, 0.12);
+    }
+
+    .title {
+      font-size: clamp(1.45rem, 3vw, 2.1rem);
+      color: var(--maroon);
+      margin: 0;
+      line-height: 1.1;
+    }
+
+    .tag {
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(135deg, rgba(143,211,255,0.22), rgba(248,183,204,0.28));
+      color: var(--maroon-dark);
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      letter-spacing: 0.02em;
+    }
+
+    .letter p {
+      margin: 0 0 14px;
+      font-size: 1rem;
+      line-height: 1.8;
+    }
+
+    .signoff {
+      margin-top: 22px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(122, 31, 61, 0.12);
+    }
+
+    .signoff .name {
+      color: var(--maroon);
+      font-size: 1.12rem;
+      font-weight: bold;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: center;
+      margin-top: 16px;
+    }
+
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 11px 18px;
+      font-size: 0.93rem;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.25s ease, opacity 0.2s ease;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .open-btn {
+      background: var(--maroon);
+      color: white;
+      box-shadow: 0 10px 20px rgba(122, 31, 61, 0.18);
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+    }
+
+    .open .flap {
+      transform: rotateX(180deg);
+      pointer-events: none;
+    }
+
+    .open .seal {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(-50%) scale(0.8);
+    }
+
+    .open .letter {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .corner-heart {
+      position: absolute;
+      font-size: 1.15rem;
+      opacity: 0.2;
+      color: var(--maroon);
+    }
+
+    .heart-1 { top: 18px; left: 18px; }
+    .heart-2 { top: 18px; right: 18px; }
+    .heart-3 { bottom: 18px; left: 22px; }
+    .heart-4 { bottom: 18px; right: 22px; }
+
+    @media (max-width: 640px) {
+      .wrap {
+        width: min(94vw, 520px);
+      }
+
+      .flap {
+        height: 96px;
+      }
+
+      .seal {
+        top: 56px;
+        width: 58px;
+        height: 58px;
+      }
+
+      .letter {
+        margin: 78px 12px 12px;
+        padding: 20px 16px;
+        max-height: 60vh;
+      }
+
+      .letter p {
+        font-size: 0.98rem;
+        line-height: 1.75;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-blur blur-1"></div>
+  <div class="bg-blur blur-2"></div>
+
+  <div class="wrap">
+    <div class="envelope" id="envelope">
+      <div class="flap"></div>
+      <div class="seal" id="seal">♡</div>
+
+      <div class="letter" id="letter">
+        <div class="corner-heart heart-1">♡</div>
+        <div class="corner-heart heart-2">♡</div>
+        <div class="corner-heart heart-3">♡</div>
+        <div class="corner-heart heart-4">♡</div>
+
+        <div class="heading">
+          <h1 class="title">For Crystal</h1>
+          <div class="tag">open-hearted and sincere</div>
+        </div>
+
+        <p>Hey Crystal, this might be my last message, though I honestly hope not. I just want to sincerely apologize for my actions, for the promises I made, and for disappointing you. It was never my intention to make you feel that way. I never wanted this to happen. I was honestly clueless, and I thought that by telling you what happened, it would clear things up, not make things worse.</p>
+
+        <p>I also want to explain the misunderstanding. I do not interact with my old girl friends in that kind of way. They were just part of our old circle before. Some of them are tomboys, we also had gay friends, and all of them already have boyfriends. The only reason I was added to that group chat was because they pulled an April Fools prank on us. I thought it was real at first, but later one of my guy friends told me it was just a prank. I had already left the group chat while I was still trying to explain things to you, and by then you had already left the conversation too. I did not know what to do after that, so I just kept apologizing because I felt like I had done something wrong. Later, I realized that it was about the girls in the call.</p>
+
+        <p>I am really sorry for not explaining myself properly. That was my fault, and I admit that. Your feelings are valid, and I do not blame you, especially because I understand that your reasons come from your own experiences. I just want to ask if there is still any chance for me to make it up to you. If there really is no chance left, then you do not have to reply after reading this.</p>
+
+        <p>Still, I want to thank you for the time we shared. Even in that short time, you gave me a lot of insights and taught me a lot about self-growth. You also helped me realize my worth, especially when it comes to my family, and I will always be thankful for that.</p>
+
+        <p>Again, I am sorry for breaking your trust. I know I told you I would prove myself, but in the end, it seems like I only hurt you instead.</p>
+
+        <div class="signoff">
+          <p>With sincerity,</p>
+          <div class="name">Elijah</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="buttons">
+      <button class="open-btn" id="openBtn">Open Letter</button>
+    </div>
+  </div>
+
+  <script>
+    const envelope = document.getElementById('envelope');
+    const seal = document.getElementById('seal');
+    const openBtn = document.getElementById('openBtn');
+
+    function openLetter() {
+      envelope.classList.add('open');
+      openBtn.textContent = 'Opened';
+      openBtn.disabled = true;
+      openBtn.style.opacity = '0.8';
+      openBtn.style.cursor = 'default';
+    }
+
+    seal.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openLetter();
+    });
+
+    openBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openLetter();
+    });
+
+    envelope.addEventListener('click', () => {
+      if (!envelope.classList.contains('open')) {
+        openLetter();
+      }
+    });
+  </script>
+</body>
+</html>
